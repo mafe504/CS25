@@ -84,6 +84,43 @@
             const BACKGROUND_ICONS = [Sparkles, Star, Zap, Aperture, Ghost, Lightbulb];
             const BG_ICON_COUNT = 15;
 
+            // Magical animated background layer (subtle or full)
+            const MagicBackground = ({ variant = 'subtle' }) => {
+                const count = typeof window !== 'undefined' && window.innerWidth < 640 ? 10 : 20;
+                const opacity = variant === 'full' ? 0.9 : 0.35;
+                return (
+                    <div className="absolute inset-0 pointer-events-none" style={{ opacity }}>
+                        <style>{`
+                            @keyframes twinkle { 0%,100%{opacity:.6; transform:scale(1) translateY(0)} 50%{opacity:1; transform:scale(1.15) translateY(-3px)} }
+                            @keyframes drift { 0%{ transform: translate(0,0) rotate(0deg);} 100%{ transform: translate(0,-25px) rotate(10deg);} }
+                        `}</style>
+                        {Array.from({ length: count }).map((_, i) => {
+                            const Icon = BACKGROUND_ICONS[i % BACKGROUND_ICONS.length];
+                            const size = 18 + (i % 5) * 6;
+                            const left = (i * 13 + 7) % 100;
+                            const top = (i * 17 + 11) % 100;
+                            const delay = -(i % 10) * 0.7;
+                            const duration = 6 + (i % 8) * 1.5;
+                            const color = ["#60a5fa", "#22d3ee", "#fde047"][i % 3];
+                            return (
+                                <Icon
+                                    key={i}
+                                    size={size}
+                                    className="absolute"
+                                    style={{
+                                        left: `${left}vw`,
+                                        top: `${top}vh`,
+                                        color,
+                                        filter: 'drop-shadow(0 0 8px rgba(147,197,253,.8))',
+                                        animation: `twinkle ${duration}s ease-in-out ${delay}s infinite, drift ${duration*3}s linear ${delay}s infinite alternate`,
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
+                );
+            };
+
             // --- Realistic Custom Icons (SVG Components) ---
             const BatteryIcon = () => (
                 <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
@@ -841,7 +878,7 @@
             // --- Main App ---
             function App() {
                 // ... (rest of App component remains unchanged)
-  const [screen, setScreen] = useState('landing');
+    const [screen, setScreen] = useState('landing');
   const [activeMissionId, setActiveMissionId] = useState(null);
   const [activeStageIndex, setActiveStageIndex] = useState(0); 
   const [components, setComponents] = useState([]);
@@ -857,7 +894,25 @@
   const [isSolutionMode, setIsSolutionMode] = useState(false); 
   const [showCredits, setShowCredits] = useState(false); 
   const [showBrief, setShowBrief] = useState(false); 
-  const [showSewing, setShowSewing] = useState(false); // NEW: Sewing State
+    const [showSewing, setShowSewing] = useState(false); // NEW: Sewing State
+    // Responsive board scaling for mobile friendliness
+    const boardContainerRef = useRef(null);
+    const [boardScale, setBoardScale] = useState(1);
+
+    const intrinsicWidth = GRID_COLS * STRIDE + GAP_SIZE;
+    const intrinsicHeight = GRID_ROWS * STRIDE + GAP_SIZE;
+
+    useEffect(() => {
+        const updateScale = () => {
+            if (!boardContainerRef.current) return;
+            const containerWidth = boardContainerRef.current.clientWidth || window.innerWidth;
+            const target = Math.min(1, Math.max(0.6, (containerWidth - 24) / intrinsicWidth));
+            setBoardScale(target);
+        };
+        updateScale();
+        window.addEventListener('resize', updateScale);
+        return () => window.removeEventListener('resize', updateScale);
+    }, [intrinsicWidth]);
 
   // NOTE: FELT_BOARD_IMAGE_URL was missing in the original file, replacing it with a placeholder path.
     const FELT_BOARD_IMAGE_URL = "felt_board_texture.jpg"; 
@@ -1230,6 +1285,8 @@
                   );
               })}
            </div>
+            {/* Extra magic layer */}
+            <MagicBackground variant="full" />
            
             <div className="z-10 text-center max-w-4xl px-4 flex flex-col items-center pt-24 pb-12">
                 
@@ -1263,7 +1320,8 @@
       )}
 
       {screen === 'mission-select' && (
-          <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-br from-stone-100 to-blue-50">
+                    <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-br from-stone-100 to-blue-50 relative">
+                        <MagicBackground variant="subtle" />
              <header className="flex items-center justify-between mb-8 max-w-6xl mx-auto">
                 <h2 className="text-2xl md:text-4xl font-black flex items-center gap-3 tracking-tight text-blue-900 drop-shadow-sm">
                   <div className="w-8 h-8 text-yellow-500"><BatteryIcon /></div> Circuit Stories Missions
@@ -1397,7 +1455,8 @@
       )}
 
       {screen === 'workbench' && currentStage && (
-        <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden min-h-screen bg-gradient-to-br from-stone-100 to-slate-200">
+          <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden min-h-screen bg-gradient-to-br from-stone-100 to-slate-200">
+              <MagicBackground variant="subtle" />
            
            <Sparky 
                 mood={success ? 'excited' : (isRunning ? 'speaking' : 'happy')}
@@ -1469,21 +1528,22 @@
             {/* Main Workbench Area (Center) */}
             <div className="flex-1 p-4 md:p-6 flex flex-col overflow-y-auto">
                 <div className="flex-1 flex items-start justify-center overflow-y-auto pb-4">
-                    <div className="relative w-full max-w-full md:max-w-2xl p-2 md:p-8 bg-white rounded-xl shadow-2xl border-4 border-stone-200 ring-4 ring-stone-300/50">
-                         {/* Scrollable Canvas Container: Ensures horizontal overflow is handled if needed */}
-                        <div className="overflow-x-auto overflow-y-auto max-h-[85vh] p-2">
-                            <div 
-                                className="relative bg-stone-200 rounded-lg shadow-inner mx-auto"
-                                style={{
-                                    width: GRID_COLS * STRIDE + GAP_SIZE, // Fixed intrinsic width
-                                    height: GRID_ROWS * STRIDE + GAP_SIZE, // Fixed intrinsic height
-                                    padding: GAP_SIZE / 2,
-                                    backgroundImage: FELT_GRID_BG_URI, // Use SVG Data URI
-                                    backgroundSize: 'cover',
-                                    backgroundPosition: 'center',
-                                    backgroundColor: '#eee',
-                                    border: '3px solid #ccc'
-                                }}
+                    <div className="relative w-full max-w-full md:max-w-2xl p-2 md:p-8 bg-white/95 backdrop-blur rounded-xl shadow-2xl border-4 border-stone-200 ring-4 ring-stone-300/40">
+                        <div ref={boardContainerRef} className="overflow-x-auto overflow-y-auto max-h-[85vh] p-2">
+                            <div
+                              className="relative bg-stone-200 rounded-lg shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] mx-auto"
+                              style={{
+                                width: intrinsicWidth,
+                                height: intrinsicHeight,
+                                padding: GAP_SIZE / 2,
+                                backgroundImage: FELT_GRID_BG_URI,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundColor: '#eee',
+                                border: '3px solid #ccc',
+                                transform: `scale(${boardScale})`,
+                                transformOrigin: 'top left'
+                              }}
                             >
                                 {/* ---------------------------------------------------- */}
                                 {/* Visual Conduction Lines (Z-index 0 - underneath everything) */}
@@ -1508,7 +1568,7 @@
                                                 stroke="#3b82f6" // Use a conductive blue color
                                                 strokeWidth="2" 
                                                 strokeDasharray="4 8" // Dashed line to show it's an underlying connection
-                                                opacity="0.3" // Make it subtle
+                                                opacity="0.35" // Make it subtle
                                                 className={isRunning ? 'animate-pulse' : ''}
                                                 style={isRunning ? { stroke: '#38BDF8', filter: 'drop-shadow(0 0 4px #38BDF8)' } : {}}
                                             />
@@ -1528,9 +1588,10 @@
                                         return (
                                             <div
                                                 key={`${r}-${c}`}
-                                                className={`absolute cursor-pointer rounded-full transition-all duration-100 z-10 
-                                                    ${isDragStart ? 'bg-red-500 shadow-xl' : 
-                                                    'bg-blue-300/40 hover:bg-blue-400/60'}`} // Enhanced color/effect for snap points
+                                                className={`absolute cursor-pointer rounded-full transition-all duration-100 z-10 ${
+                                                    isDragStart ? 'bg-red-500 shadow-xl ring-4 ring-red-300/60' :
+                                                    'bg-blue-300/40 hover:bg-blue-400/60 ring-2 ring-blue-300/40'
+                                                }`}
                                                 style={{
                                                     left: c * STRIDE + GAP_SIZE / 2,
                                                     top: r * STRIDE + GAP_SIZE / 2,
@@ -1538,10 +1599,10 @@
                                                     height: CELL_SIZE,
                                                     // Ensure the snap points look like fasteners
                                                     border: '2px solid #5a5a5a',
-                                                    boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)',
+                                                    boxShadow: 'inset 0 0 6px rgba(0,0,0,0.35), 0 0 6px rgba(96,165,250,.35)',
                                                     opacity: 0.9,
                                                     transform: isDragStart ? 'scale(1.25)' : isTargetSnap ? 'scale(1.1)' : 'scale(1)',
-                                                    filter: isTargetSnap ? 'drop-shadow(0 0 5px #60a5fa)' : 'none',
+                                                    filter: isTargetSnap ? 'drop-shadow(0 0 6px #60a5fa)' : 'none',
                                                 }}
                                                 onClick={() => handleSnapClick(r, c)}
                                             />
@@ -1581,7 +1642,7 @@
                                                 }}
                                                 onClick={() => handleRemoveComponent(comp.id)}
                                             >
-                                                <div className={`relative ${isActive ? (comp.type === 'led' ? 'opacity-100 drop-shadow-lg' : comp.type === 'buzzer' ? 'opacity-100' : 'opacity-100') : 'opacity-80'} hover:scale-[1.05] transition-transform`}>
+                                                <div className={`relative ${isActive ? (comp.type === 'led' ? 'opacity-100 drop-shadow-lg' : comp.type === 'buzzer' ? 'opacity-100' : 'opacity-100') : 'opacity-85'} hover:scale-[1.05] transition-transform`}>
                                                     <tool.CustomIcon />
                                                     {/* Active Glow for Fixed Parts */}
                                                     {isActive && (
@@ -1598,7 +1659,7 @@
                                         return (
                                             <div
                                                 key={comp.id}
-                                                className={`absolute cursor-pointer transition-all duration-300 z-20 ${isActive ? 'opacity-100' : 'opacity-80'} hover:scale-[1.05] transition-transform`}
+                                                className={`absolute cursor-pointer transition-all duration-300 z-20 ${isActive ? 'opacity-100' : 'opacity-85'} hover:scale-[1.05] transition-transform`}
                                                 style={{
                                                     left: midX - wireWidth / 2,
                                                     top: midY - 15, // Center vertically
@@ -1657,7 +1718,7 @@
                 {/* --- End New Control Bar Position --- */}
 
                 {/* Parts Kit (Original bottom bar container, now simplified) */}
-                <div className="p-4 bg-white shadow-2xl rounded-3xl border-t border-slate-200 flex justify-center items-center gap-4 mt-6 ring-4 ring-blue-500/10">
+                <div className="p-3 md:p-4 bg-white/95 backdrop-blur shadow-2xl rounded-3xl border-t border-slate-200 flex justify-center items-center gap-3 md:gap-4 mt-6 ring-4 ring-blue-500/10 sticky bottom-0">
                     {/* Parts Kit */}
                     <div className="flex overflow-x-auto gap-4 py-2 px-2 w-full justify-center">
                         {Object.keys(COMPONENT_TYPES).map(key => {
@@ -1667,13 +1728,13 @@
                                 <button
                                     key={comp.id}
                                     onClick={() => setSelectedTool(selectedTool === comp.id ? null : comp.id)}
-                                    className={`p-2 rounded-2xl shadow-lg border-4 transition-all w-24 h-24 shrink-0 flex flex-col items-center justify-center ${isSelected ? 'border-blue-500 bg-white/90 scale-105 shadow-xl ring-4 ring-blue-300' : 'border-slate-200 bg-white hover:border-blue-300 hover:scale-[1.02] ring-2 ring-transparent'}`}
+                                    className={`p-2 rounded-2xl shadow-lg border-4 transition-all w-20 h-20 md:w-24 md:h-24 shrink-0 flex flex-col items-center justify-center ${isSelected ? 'border-blue-500 bg-white/90 scale-105 shadow-xl ring-4 ring-blue-300' : 'border-slate-200 bg-white hover:border-blue-300 hover:scale-[1.02] ring-2 ring-transparent'}`}
                                     title={`Add ${comp.label}`}
                                 >
-                                    <div className="w-12 h-8">
+                                    <div className="w-10 h-8 md:w-12">
                                         <comp.CustomIcon />
                                     </div>
-                                    <span className="text-xs font-bold mt-1 text-slate-700">{comp.label}</span>
+                                    <span className="text-[10px] md:text-xs font-bold mt-1 text-slate-700">{comp.label}</span>
                                 </button>
                             );
                         })}
