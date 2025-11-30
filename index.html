@@ -1,206 +1,197 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, RefreshCcw, CheckCircle, HelpCircle, ArrowRight, Star, Home, Trash2, Volume2, VolumeX, ChevronDown, ChevronUp, BookOpen, Info, Lightbulb, Lock, Sparkles, Users, FileText, Cpu, Scissors, RotateCw, Shirt, Zap, Aperture, Ghost } from 'lucide-react';
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Circuit Stories</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <style>
+            html, body, #root { height: 100%; }
+            body { margin: 0; }
+        </style>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/babel" data-presets="react">
+            const { useState, useEffect, useRef } = React;
 
-/**
- * CIRCUIT STORIES - FINAL CONTENT FIX
- * * Updates:
- * - VISUAL Rework: Grid dimensions and dot placement adjusted to visually match the uploaded image's breadboard-like structure (9 vertical lanes, continuous top/bottom rails).
- * - NEW FEATURE: Added subtle vertical dashed lines to explicitly show the **Column-Based Connectivity Logic** (conductive strips) to the user.
- * - LOGIC FIX: Hardened the `runSimulation` and `toggleButtonPress` functions to ensure accurate calculation of active components immediately after the button state changes, fixing the persistent 'open circuit' issue for Mission 5.
- * - UI FIX: Moved "Test Circuit" and "Clear Board" buttons directly under the breadboard for immediate access.
- * - UI FIX: Fixed Sparky's visibility on the workbench. It is now anchored to a fixed position (bottom-32, left of the sidebar) on desktop to prevent overlap with the parts bar and prevent being rendered outside the screen boundaries.
- * - **GRAPHICS ENHANCEMENT (MAGIC):** Applied consistent, dynamic, and high-energy graphics across ALL screens (Landing, Mission Select, Manual, Workbench) using glows, pulses, and elevated UI elements.
- * - **LANDING PAGE BACKGROUND:** Changed the landing page background from a dark, hard circuit look to a magical, cosmic, and game-inspired environment with floating animated glyphs.
- * - **CREDITS ENHANCEMENT:** Updated Credits Modal: Removed individual roles and institutional graphs/logos, keeping only the developer names.
- * - **PROJECT BRIEF FIX:** Removed the T519 source attribution line.
- * - **SEWING TUTORIAL FIX:** Added SVG visualization of the sewing process with a needle and thread animation progressing through the steps.
- * - **RESPONSIVENESS FIX:** Enhanced mobile friendliness across all screens, ensuring elements stack correctly and the workbench prioritizes breadboard visibility.
- * - **GITHUB PAGES FIX (FINAL):** Removed ALL external image references by converting visual assets (felt board grid, cover image, mock avatars) to inline SVGs or data URIs, making the application 100% self-contained.
- * - **ERROR FIX:** Moved helper function declarations inside the `SewingSimulator` component scope to resolve "is not defined" errors.
- */
+            // Lightweight placeholder icon components for direct-HTML usage
+            const makeIcon = (symbol) => ({ size = 24, className = '' }) => (
+                <span className={className} style={{ display: 'inline-block', width: size, height: size, lineHeight: `${size}px`, textAlign: 'center', fontSize: size * 0.8 }}>{symbol}</span>
+            );
+            const Play = makeIcon('▶');
+            const RefreshCcw = makeIcon('⟳');
+            const CheckCircle = makeIcon('✔️');
+            const HelpCircle = makeIcon('?');
+            const ArrowRight = makeIcon('→');
+            const Star = makeIcon('★');
+            const Home = makeIcon('🏠');
+            const Trash2 = makeIcon('🗑️');
+            const Volume2 = makeIcon('🔊');
+            const VolumeX = makeIcon('🔇');
+            const ChevronDown = makeIcon('⌄');
+            const ChevronUp = makeIcon('⌃');
+            const BookOpen = makeIcon('📖');
+            const Info = makeIcon('ℹ️');
+            const Lightbulb = makeIcon('💡');
+            const Lock = makeIcon('🔒');
+            const Sparkles = makeIcon('✨');
+            const Users = makeIcon('👥');
+            const FileText = makeIcon('📄');
+            const Cpu = makeIcon('🖥️');
+            const Scissors = makeIcon('✂️');
+            const RotateCw = makeIcon('⟳');
+            const Shirt = makeIcon('👕');
+            const Zap = makeIcon('⚡');
+            const Aperture = makeIcon('🎯');
+            const Ghost = makeIcon('👻');
 
-// --- Constants & Data ---
+            // --- Constants & Data ---
+            const GRID_ROWS = 6;
+            const GRID_COLS = 10; // Increased columns to simulate wider board/space for 9 lanes
+            const CELL_SIZE = 30; // px (Reduced for smaller snap appearance)
+            const GAP_SIZE = 15;  // px (Reduced gap between snaps)
+            const STRIDE = CELL_SIZE + GAP_SIZE; // 45px pitch
 
-const GRID_ROWS = 6;
-const GRID_COLS = 10; // Increased columns to simulate wider board/space for 9 lanes
-const CELL_SIZE = 30; // px (Reduced for smaller snap appearance)
-const GAP_SIZE = 15;  // px (Reduced gap between snaps)
-const STRIDE = CELL_SIZE + GAP_SIZE; // 45px pitch
+            // --- SVG Assets (100% Self-Contained) ---
+            // 1. Felt Grid SVG Data URI (Used for Workbench Background)
+            const generateFeltGridSvg = (rows, cols, stride, size) => {
+                const totalWidth = cols * stride + GAP_SIZE;
+                const totalHeight = rows * stride + GAP_SIZE;
+                let circles = '';
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const cx = c * stride + size / 2 + GAP_SIZE / 2;
+                        const cy = r * stride + size / 2 + GAP_SIZE / 2;
+                        circles += `<circle cx="${cx}" cy="${cy}" r="3" fill="#888" opacity="0.6"/>`;
+                    }
+                }
+                const svgContent = `
+                    <svg width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100%" height="100%" fill="#f8f8f8"/>
+                        <rect x="5" y="5" width="${totalWidth - 10}" height="${totalHeight - 10}" rx="10" fill="#ededed" stroke="#ccc" stroke-width="2"/>
+                        ${circles}
+                    </svg>
+                `.replace(/\s+/g, ' ').trim();
+                return `url("data:image/svg+xml;base64,${btoa(svgContent)}")`;
+            };
+            const FELT_GRID_BG_URI = generateFeltGridSvg(GRID_ROWS, GRID_COLS, STRIDE, CELL_SIZE);
 
-// --- SVG Assets (100% Self-Contained) ---
+            // Array of icons for the magical background
+            const BACKGROUND_ICONS = [Sparkles, Star, Zap, Aperture, Ghost, Lightbulb];
+            const BG_ICON_COUNT = 15;
 
-// 1. Felt Grid SVG Data URI (Used for Workbench Background)
-const generateFeltGridSvg = (rows, cols, stride, size) => {
-    const totalWidth = cols * stride + GAP_SIZE;
-    const totalHeight = rows * stride + GAP_SIZE;
-    let circles = '';
+            // --- Realistic Custom Icons (SVG Components) ---
+            const BatteryIcon = () => (
+                <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
+                    <defs>
+                        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#4ade80" />
+                            <stop offset="100%" stopColor="#22c55e" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#greenGrad)" stroke="#16a34a" strokeWidth="2" />
+                    <path d="M10 10 H90 Q92 10 92 12 V25 Q50 35 8 25 V12 Q8 10 10 10" fill="white" opacity="0.2" />
+                    <path d="M45 15 L60 15 L60 28 L45 28 Z" fill="#e2e8f0" opacity="0.5" /> 
+                    <path d="M55 22 L42 42 L52 42 L48 55 L65 35 L55 35 Z" fill="white" filter="drop-shadow(0 2px 2px rgba(0,0,0,0.2))" />
+                    <circle cx="15" cy="30" r="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
+                    <circle cx="85" cy="30" r="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
+                </svg>
+            );
 
-    // Loop through the snap positions
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            const cx = c * stride + size / 2 + GAP_SIZE / 2;
-            const cy = r * stride + size / 2 + GAP_SIZE / 2;
-            circles += `<circle cx="${cx}" cy="${cy}" r="3" fill="#888" opacity="0.6"/>`;
-        }
-    }
+            const WireIcon = () => (
+                <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-sm">
+                    <defs>
+                        <linearGradient id="blueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#60a5fa" />
+                            <stop offset="100%" stopColor="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="5" y="10" width="90" height="20" rx="10" fill="url(#blueGrad)" stroke="#1d4ed8" strokeWidth="1" />
+                    <line x1="15" y1="20" x2="85" y2="20" stroke="white" strokeWidth="2" strokeDasharray="6 4" opacity="0.9" />
+                    <circle cx="15" cy="20" r="4" fill="white" stroke="#1e40af" strokeWidth="1" />
+                    <circle cx="85" cy="20" r="4" fill="white" stroke="#1e40af" strokeWidth="1" />
+                </svg>
+            );
 
-    const svgContent = `
-        <svg width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="#f8f8f8"/>
-            <rect x="5" y="5" width="${totalWidth - 10}" height="${totalHeight - 10}" rx="10" fill="#ededed" stroke="#ccc" stroke-width="2"/>
-            ${circles}
-        </svg>
-    `.replace(/\s+/g, ' ').trim(); // Minify SVG for data URI
+            const ButtonIcon = () => (
+                <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
+                    <defs>
+                        <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#f87171" />
+                            <stop offset="100%" stopColor="#ef4444" />
+                        </linearGradient>
+                        <radialGradient id="btnGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="#fee2e2" />
+                            <stop offset="100%" stopColor="#fca5a5" />
+                        </radialGradient>
+                    </defs>
+                    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#redGrad)" stroke="#dc2626" strokeWidth="2" />
+                    <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.2" />
+                    <circle cx="50" cy="30" r="18" fill="#b91c1c" />
+                    <circle cx="50" cy="28" r="14" fill="url(#btnGrad)" stroke="#991b1b" strokeWidth="1" />
+                    <path d="M20 30 L28 24 M20 30 L28 36" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+                    <path d="M80 30 L72 24 M80 30 L72 36" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
+                    <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+                    <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+                </svg>
+            );
 
-    return `url("data:image/svg+xml;base64,${btoa(svgContent)}")`;
-};
+            const BuzzerIcon = () => (
+                <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
+                    <defs>
+                        <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#fb923c" />
+                            <stop offset="100%" stopColor="#f97316" />
+                        </linearGradient>
+                    </defs>
+                    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#orangeGrad)" stroke="#ea580c" strokeWidth="2" />
+                    <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.2" />
+                    <circle cx="50" cy="30" r="16" fill="#c2410c" />
+                    <circle cx="50" cy="30" r="12" fill="#292524" opacity="0.3" />
+                    <path d="M40 30 H60 M50 20 V40" stroke="#fb923c" strokeWidth="2" opacity="0.5" />
+                    <path d="M72 20 Q80 30 72 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.9" />
+                    <path d="M28 20 Q20 30 28 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.9" />
+                    <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+                    <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+                </svg>
+            );
 
-const FELT_GRID_BG_URI = generateFeltGridSvg(GRID_ROWS, GRID_COLS, STRIDE, CELL_SIZE);
+            const LightIcon = () => (
+                <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
+                    <defs>
+                        <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#facc15" />
+                            <stop offset="100%" stopColor="#eab308" />
+                        </linearGradient>
+                        <radialGradient id="bulbGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="#fef08a" />
+                            <stop offset="100%" stopColor="#fde047" />
+                        </radialGradient>
+                    </defs>
+                    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#yellowGrad)" stroke="#ca8a04" strokeWidth="2" />
+                    <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.3" />
+                    <circle cx="50" cy="30" r="14" fill="url(#bulbGrad)" stroke="#eab308" strokeWidth="1" filter="drop-shadow(0 0 5px rgba(253, 224, 71, 0.6))" />
+                    <circle cx="55" cy="25" r="4" fill="white" opacity="0.8" />
+                    <circle cx="25" cy="30" r="3" fill="white" opacity="0.5" />
+                    <circle cx="75" cy="30" r="3" fill="white" opacity="0.5" />
+                    <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+                    <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+                </svg>
+            );
 
-// 2. Mock Avatars (Kept Placeholder URLs, now protocol-agnostic, as requested previously)
-const MOCK_AVATAR_1 = "//placehold.co/100x100/3b82f6/ffffff?text=DK";
-const MOCK_AVATAR_2 = "//placehold.co/100x100/10b981/ffffff?text=MAH";
-const MOCK_AVATAR_3 = "//placehold.co/100x100/f59e0b/ffffff?text=JLH";
+            const COMPONENT_TYPES = {
+                BATTERY: { id: 'battery', label: 'Battery', CustomIcon: BatteryIcon, color: 'bg-green-500', logic: 'power', width: 'fixed', desc: "This is the power source for your whole project. It gives your circuit the energy it needs to light up or make sound." },
+                CONNECTOR: { id: 'connector', label: 'Wire', CustomIcon: WireIcon, color: 'bg-blue-400', logic: 'wire', width: 'flex', desc: "These pieces act like roads that electricity can travel on. They connect one part of your circuit to another." },
+                BUTTON: { id: 'button', label: 'Button', CustomIcon: ButtonIcon, color: 'bg-red-500', logic: 'switch', width: 'fixed', desc: "This is your on/off switch! When you press the button, it closes the circuit and lets electricity flow." },
+                BUZZER: { id: 'buzzer', label: 'Sound', CustomIcon: BuzzerIcon, color: 'bg-orange-500', logic: 'output', width: 'fixed', desc: "This piece makes noise when the circuit is complete. It might beep, buzz, or make a fun sound depending on your design." },
+                LED: { id: 'led', label: 'Light', CustomIcon: LightIcon, color: 'bg-yellow-400', logic: 'output', width: 'fixed', desc: "This piece lights up when your circuit is correct. It's great for making glowing eyes, warning lights, or signals." },
+            };
 
-// Array of icons for the magical background
-const BACKGROUND_ICONS = [Sparkles, Star, Zap, Aperture, Ghost, Lightbulb];
-const BG_ICON_COUNT = 15;
-
-
-// --- Realistic Custom Icons (SVG Components) ---
-// (Icons kept same as previous steps for brevity, they are working well)
-const BatteryIcon = () => (
-  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-    <defs>
-      <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#4ade80" />
-        <stop offset="100%" stopColor="#22c55e" />
-      </linearGradient>
-    </defs>
-    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#greenGrad)" stroke="#16a34a" strokeWidth="2" />
-    <path d="M10 10 H90 Q92 10 92 12 V25 Q50 35 8 25 V12 Q8 10 10 10" fill="white" opacity="0.2" />
-    <path d="M45 15 L60 15 L60 28 L45 28 Z" fill="#e2e8f0" opacity="0.5" /> 
-    <path d="M55 22 L42 42 L52 42 L48 55 L65 35 L55 35 Z" fill="white" filter="drop-shadow(0 2px 2px rgba(0,0,0,0.2))" />
-    <circle cx="15" cy="30" r="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
-    <circle cx="85" cy="30" r="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
-  </svg>
-);
-
-const WireIcon = () => (
-  <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-sm">
-    <defs>
-      <linearGradient id="blueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#60a5fa" />
-        <stop offset="100%" stopColor="#3b82f6" />
-      </linearGradient>
-    </defs>
-    <rect x="5" y="10" width="90" height="20" rx="10" fill="url(#blueGrad)" stroke="#1d4ed8" strokeWidth="1" />
-    <line x1="15" y1="20" x2="85" y2="20" stroke="white" strokeWidth="2" strokeDasharray="6 4" opacity="0.9" />
-    <circle cx="15" cy="20" r="4" fill="white" stroke="#1e40af" strokeWidth="1" />
-    <circle cx="85" cy="20" r="4" fill="white" stroke="#1e40af" strokeWidth="1" />
-  </svg>
-);
-
-const ButtonIcon = () => (
-  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-    <defs>
-      <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#f87171" />
-        <stop offset="100%" stopColor="#ef4444" />
-      </linearGradient>
-      <radialGradient id="btnGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#fee2e2" />
-        <stop offset="100%" stopColor="#fca5a5" />
-      </radialGradient>
-    </defs>
-    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#redGrad)" stroke="#dc2626" strokeWidth="2" />
-    <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.2" />
-    <circle cx="50" cy="30" r="18" fill="#b91c1c" />
-    <circle cx="50" cy="28" r="14" fill="url(#btnGrad)" stroke="#991b1b" strokeWidth="1" />
-    <path d="M20 30 L28 24 M20 30 L28 36" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
-    <path d="M80 30 L72 24 M80 30 L72 36" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
-    <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-    <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-  </svg>
-);
-
-const BuzzerIcon = () => (
-  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-    <defs>
-      <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#fb923c" />
-        <stop offset="100%" stopColor="#f97316" />
-      </linearGradient>
-    </defs>
-    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#orangeGrad)" stroke="#ea580c" strokeWidth="2" />
-    <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.2" />
-    <circle cx="50" cy="30" r="16" fill="#c2410c" />
-    <circle cx="50" cy="30" r="12" fill="#292524" opacity="0.3" />
-    <path d="M40 30 H60 M50 20 V40" stroke="#fb923c" strokeWidth="2" opacity="0.5" />
-    <path d="M72 20 Q80 30 72 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.9" />
-    <path d="M28 20 Q20 30 28 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.9" />
-    <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-    <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-  </svg>
-);
-
-const LightIcon = () => (
-  <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-    <defs>
-      <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#facc15" />
-        <stop offset="100%" stopColor="#eab308" />
-      </linearGradient>
-      <radialGradient id="bulbGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#fef08a" />
-        <stop offset="100%" stopColor="#fde047" />
-      </radialGradient>
-    </defs>
-    <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#yellowGrad)" stroke="#ca8a04" strokeWidth="2" />
-    <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.3" />
-    <circle cx="50" cy="30" r="14" fill="url(#bulbGrad)" stroke="#eab308" strokeWidth="1" filter="drop-shadow(0 0 5px rgba(253, 224, 71, 0.6))" />
-    <circle cx="55" cy="25" r="4" fill="white" opacity="0.8" />
-    <circle cx="25" cy="30" r="3" fill="white" opacity="0.5" />
-    <circle cx="75" cy="30" r="3" fill="white" opacity="0.5" />
-    <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-    <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-  </svg>
-);
-
-const COMPONENT_TYPES = {
-  BATTERY: { 
-    id: 'battery', label: 'Battery', 
-    CustomIcon: BatteryIcon, 
-    color: 'bg-green-500', logic: 'power', width: 'fixed',
-    desc: "This is the power source for your whole project. It gives your circuit the energy it needs to light up or make sound."
-  },
-  CONNECTOR: { 
-    id: 'connector', label: 'Wire', 
-    CustomIcon: WireIcon, 
-    color: 'bg-blue-400', logic: 'wire', width: 'flex',
-    desc: "These pieces act like roads that electricity can travel on. They connect one part of your circuit to another."
-  },
-  BUTTON: { 
-    id: 'button', label: 'Button', 
-    CustomIcon: ButtonIcon, 
-    color: 'bg-red-500', logic: 'switch', width: 'fixed',
-    desc: "This is your on/off switch! When you press the button, it closes the circuit and lets electricity flow."
-  },
-  BUZZER: { 
-    id: 'buzzer', label: 'Sound', 
-    CustomIcon: BuzzerIcon, 
-    color: 'bg-orange-500', logic: 'output', width: 'fixed',
-    desc: "This piece makes noise when the circuit is complete. It might beep, buzz, or make a fun sound depending on your design."
-  },
-  LED: { 
-    id: 'led', label: 'Light', 
-    CustomIcon: LightIcon, 
-    color: 'bg-yellow-400', logic: 'output', width: 'fixed',
-    desc: "This piece lights up when your circuit is correct. It's great for making glowing eyes, warning lights, or signals."
-  },
-};
-
-const MISSIONS = [
+            const MISSIONS = [
   {
     id: 1,
     title: "The Deep-Sea Mission",
@@ -335,10 +326,10 @@ const MISSIONS = [
       }
     ]
   }
-];
+    ];
 
-// --- Audio Engine ---
-const playSound = (type) => {
+    // --- Audio Engine ---
+    const playSound = (type) => {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
@@ -404,10 +395,10 @@ const playSound = (type) => {
       default: break;
     }
   } catch (e) { console.error("Audio error", e); }
-};
+    };
 
-// --- Helper Functions ---
-const getThemeColors = (theme) => {
+    // --- Helper Functions ---
+    const getThemeColors = (theme) => {
   switch (theme) {
     case 'ocean': return 'from-blue-200 to-blue-100 text-blue-800';
     case 'lab': return 'from-indigo-200 to-indigo-100 text-indigo-800';
@@ -419,10 +410,10 @@ const getThemeColors = (theme) => {
     case 'magazine': return 'from-teal-200 to-cyan-100 text-teal-800'; 
     default: return 'from-slate-200 to-slate-100 text-slate-800';
   }
-};
+    };
 
-// --- Sparky Component ---
-const Sparky = ({ mood = 'happy', message, mobileCollapsed, onHint, isWorkbench }) => {
+    // --- Sparky Component ---
+    const Sparky = ({ mood = 'happy', message, mobileCollapsed, onHint, isWorkbench }) => {
   if (mobileCollapsed || (isWorkbench && window.innerWidth < 768)) {
     // Hide Sparky entirely on mobile workbench for space efficiency
      return null; 
@@ -541,11 +532,11 @@ const Sparky = ({ mood = 'happy', message, mobileCollapsed, onHint, isWorkbench 
       )}
     </div>
   );
-};
+    };
 
-// --- Modals ---
+    // --- Modals ---
 
-const Modal = ({ title, children, onClose }) => (
+    const Modal = ({ title, children, onClose }) => (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-all duration-300 animate-in zoom-in-75 ring-4 ring-blue-500/10">
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex justify-between items-center rounded-t-3xl shadow-md">
@@ -559,10 +550,10 @@ const Modal = ({ title, children, onClose }) => (
             </div>
         </div>
     </div>
-);
+    );
 
-// --- Credit Modal (Simplified) ---
-const CreditsModal = ({ onClose }) => {
+    // --- Credit Modal (Simplified) ---
+    const CreditsModal = ({ onClose }) => {
     return (
         <Modal title="Project Credits" onClose={onClose}>
             <div className="text-center p-4">
@@ -611,9 +602,9 @@ const CreditsModal = ({ onClose }) => {
             </div>
         </Modal>
     );
-};
+    };
 
-const ProjectBriefModal = ({ onClose }) => (
+    const ProjectBriefModal = ({ onClose }) => (
     <Modal title="Project Idea: Circuit Stories" onClose={onClose}>
         <h4 className="text-xl font-bold text-blue-700 mb-3">Overview & Motivation</h4>
         <p className="mb-4 text-sm leading-relaxed">
@@ -639,10 +630,10 @@ const ProjectBriefModal = ({ onClose }) => (
             <li>**Immediate Feedback:** Lights and buzzers activate instantly when circuits are correctly assembled.</li>
         </ul>
     </Modal>
-);
+    );
 
-// --- Sewing Simulator Component ---
-const SewingSimulator = ({ onClose }) => {
+    // --- Sewing Simulator Component ---
+    const SewingSimulator = ({ onClose }) => {
     const [sewingStep, setSewingStep] = useState(0);
     const [isSewing, setIsSewing] = useState(false);
     const [view, setView] = useState('front'); // 'front' or 'back'
@@ -845,12 +836,11 @@ const SewingSimulator = ({ onClose }) => {
             </div>
         </Modal>
     );
-};
+            };
 
-// --- Main App ---
-
-export default function App() {
-// ... (rest of App component remains unchanged)
+            // --- Main App ---
+            function App() {
+                // ... (rest of App component remains unchanged)
   const [screen, setScreen] = useState('landing');
   const [activeMissionId, setActiveMissionId] = useState(null);
   const [activeStageIndex, setActiveStageIndex] = useState(0); 
@@ -870,7 +860,7 @@ export default function App() {
   const [showSewing, setShowSewing] = useState(false); // NEW: Sewing State
 
   // NOTE: FELT_BOARD_IMAGE_URL was missing in the original file, replacing it with a placeholder path.
-  const FELT_BOARD_IMAGE_URL = "felt_board_texture.jpg"; 
+    const FELT_BOARD_IMAGE_URL = "felt_board_texture.jpg"; 
 
 
   const triggerSound = (type) => { if (audioEnabled) playSound(type); };
@@ -1694,4 +1684,10 @@ export default function App() {
       )}
     </div>
   );
-}
+            }
+
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(<App />);
+        </script>
+    </body>
+</html>
