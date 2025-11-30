@@ -56,7 +56,8 @@
     const ChevronUp = createIcon("M18 15l-6-6-6 6", 24, "none", "currentColor");
     const BookOpen = createIcon("M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2Z M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7Z", 24, "none", "currentColor");
     const Info = createIcon("M12 12h.01M11 12v3M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Z", 24, "none", "currentColor");
-    const Lightbulb = createIcon("M15 14c.05-1.01.5-2 1-3 0-1.7-.5-3-1-4-1 0-2 1-2 2-1 0-2 1-2 2-1 0-2 1-2 2-1 0-2 1-2 2Z", 24, "none", "currentColor");
+    // Explicitly using a lightbulb shape for the hint icon as requested
+    const Lightbulb = createIcon("M9 18h6 M12 2a4 4 0 0 0-4 4v1a4 4 0 0 1-4 4h16a4 4 0 0 1-4-4v-1a4 4 0 0 0-4-4Z", 24, "none", "currentColor");
     const Lock = createIcon("M11 15v-1a3 3 0 0 0-6 0v1h2m3 0v-2c0-1.1.9-2 2-2s2 .9 2 2v2m-2-6h.01M21 7v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z", 24, "none", "currentColor");
     const Sparkles = createIcon("M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 18.25l-6.18 3.84L7 14.14l-5-4.87 6.91-1.01L12 2Z M20 4L18 6 16 4 18 2 20 4Z M4 20L6 18 8 20 6 22 4 20Z", 24, "none", "currentColor");
     const Users = createIcon("M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z M17 11a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z M17 13a4 4 0 0 0 4 4v2", 24, "none", "currentColor");
@@ -69,20 +70,21 @@
     const Aperture = createIcon("M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Z M14.31 8a2 2 0 0 1-2.62 0", 24, "none", "currentColor");
     const Ghost = createIcon("M9 10L15 10 15 15 12 18 9 15Z M12 2C6.477 2 2 6.477 2 12S6.477 22 12 22s10-4.477 10-10S17.523 2 12 2Z M2 12l.5 2.5 1 1 1 2.5", 24, "none", "currentColor");
     
-    // --- MISSING ICON DEFINITIONS ADDED ---
+    // --- Other Missing Icon Definitions (Kept from previous fix) ---
     const CheckCircle = createIcon("M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4L12 14l-3-3", 24, "none", "currentColor");
     const HelpCircle = createIcon("M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3 M12 17h.01", 24, "none", "currentColor");
     const Volume2 = createIcon("M11 5L6 9H2v6h4l5 4V5Z M15.54 8.46a4.99 4.99 0 0 1 0 7.08", 24, "none", "currentColor");
     const VolumeX = createIcon("M11 5L6 9H2v6h4l5 4V5Z M22 10l-4 4 M18 10l4 4", 24, "none", "currentColor");
+    // --- END ICON DEFINITIONS ---
 
 
-    // --- Constants & Data (Copied from index1.html) ---
+    // --- Constants & Data ---
 
     const GRID_ROWS = 6;
     const GRID_COLS = 10; // Increased columns to simulate wider board/space for 9 lanes
-    const CELL_SIZE = 30; // px (Reduced for smaller snap appearance)
-    const GAP_SIZE = 15;  // px (Reduced gap between snaps)
-    const STRIDE = CELL_SIZE + GAP_SIZE; // 45px pitch
+    const CELL_SIZE = 20; // px (Reduced from 30px to 20px)
+    const GAP_SIZE = 25;  // px (Increased from 15px to 25px)
+    const STRIDE = CELL_SIZE + GAP_SIZE; // 45px pitch (maintained)
 
     // --- SVG Assets (100% Self-Contained) ---
 
@@ -90,16 +92,8 @@
     const generateFeltGridSvg = (rows, cols, stride, size) => {
         const totalWidth = cols * stride + GAP_SIZE;
         const totalHeight = rows * stride + GAP_SIZE;
-        let circles = '';
-
-        // Loop through the snap positions
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const cx = c * stride + size / 2 + GAP_SIZE / 2;
-                const cy = r * stride + size / 2 + GAP_SIZE / 2;
-                circles += `<circle cx="${cx}" cy="${cy}" r="3" fill="#888" opacity="0.6"/>`;
-            }
-        }
+        // NOTE: Removed the unnecessary internal grey circles for clarity
+        const circles = '';
 
         const svgContent = `
             <svg width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg">
@@ -124,102 +118,68 @@
     const BG_ICON_COUNT = 15;
 
 
-    // --- Realistic Custom Icons (SVG Components) ---
+    // --- Realistic Custom Icons (SVG Components) - UPDATED WIDTH FOR VISUAL CLARITY ---
+    // ViewBox remains 45x45 (STRIDE x STRIDE)
+    
     const BatteryIcon = () => (
-      <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-        <defs>
-          <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#4ade80" />
-            <stop offset="100%" stopColor="#22c55e" />
-          </linearGradient>
-        </defs>
-        <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#greenGrad)" stroke="#16a34a" strokeWidth="2" />
-        <path d="M10 10 H90 Q92 10 92 12 V25 Q50 35 8 25 V12 Q8 10 10 10" fill="white" opacity="0.2" />
-        <path d="M45 15 L60 15 L60 28 L45 28 Z" fill="#e2e8f0" opacity="0.5" /> 
-        <path d="M55 22 L42 42 L52 42 L48 55 L65 35 L55 35 Z" fill="white" filter="drop-shadow(0 2px 2px rgba(0,0,0,0.2))" />
-        <circle cx="15" cy="30" r="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
-        <circle cx="85" cy="30" r="5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
+      <svg viewBox="0 0 45 45" className="w-full h-full drop-shadow-md">
+        {/* Component Body: Green square (Wider, almost edge-to-edge) */}
+        <rect x="2" y="5" width="41" height="35" rx="5" fill="#4ade80" stroke="#16a34a" strokeWidth="2" />
+        {/* Central Icon: Lightning bolt (Zap path simplified) */}
+        <path d="M25 15 L20 28 L30 28 L25 35" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" transform="translate(-2.5, -4)"/>
+        {/* Snaps (Simplified circles outside the main body for positioning context) */}
+        <circle cx="5" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
+        <circle cx="40" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
       </svg>
     );
 
     const WireIcon = () => (
-      <svg viewBox="0 0 100 40" className="w-full h-full drop-shadow-sm">
-        <defs>
-          <linearGradient id="blueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#60a5fa" />
-            <stop offset="100%" stopColor="#3b82f6" />
-          </linearGradient>
-        </defs>
-        <rect x="5" y="10" width="90" height="20" rx="10" fill="url(#blueGrad)" stroke="#1d4ed8" strokeWidth="1" />
-        <line x1="15" y1="20" x2="85" y2="20" stroke="white" strokeWidth="2" strokeDasharray="6 4" opacity="0.9" />
-        <circle cx="15" cy="20" r="4" fill="white" stroke="#1e40af" strokeWidth="1" />
-        <circle cx="85" cy="20" r="4" fill="white" stroke="#1e40af" strokeWidth="1" />
+      <svg viewBox="0 0 45 45" className="w-full h-full drop-shadow-sm">
+        {/* Wire Body (Wider Rectangle) */}
+        <rect x="2" y="17.5" width="41" height="10" rx="5" fill="#60a5fa" stroke="#3b82f6" strokeWidth="2" />
+        {/* Snaps (Simplified circles outside the main body for positioning context) */}
+        <circle cx="5" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
+        <circle cx="40" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
       </svg>
     );
 
     const ButtonIcon = () => (
-      <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-        <defs>
-          <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#f87171" />
-            <stop offset="100%" stopColor="#ef4444" />
-          </linearGradient>
-          <radialGradient id="btnGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#fee2e2" />
-            <stop offset="100%" stopColor="#fca5a5" />
-          </radialGradient>
-        </defs>
-        <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#redGrad)" stroke="#dc2626" strokeWidth="2" />
-        <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.2" />
-        <circle cx="50" cy="30" r="18" fill="#b91c1c" />
-        <circle cx="50" cy="28" r="14" fill="url(#btnGrad)" stroke="#991b1b" strokeWidth="1" />
-        <path d="M20 30 L28 24 M20 30 L28 36" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
-        <path d="M80 30 L72 24 M80 30 L72 36" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
-        <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-        <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+      <svg viewBox="0 0 45 45" className="w-full h-full drop-shadow-md">
+        {/* Component Body: Red horizontal stripe (Wider) */}
+        <rect x="2" y="10" width="41" height="25" rx="5" fill="#f87171" stroke="#dc2626" strokeWidth="2" />
+        {/* Central Icon: Red button circle */}
+        <circle cx="22.5" cy="22.5" r="7" fill="#ef4444" stroke="#fff" strokeWidth="1.5" />
+        {/* Snaps (Simplified circles outside the main body for positioning context) */}
+        <circle cx="5" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
+        <circle cx="40" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
       </svg>
     );
 
     const BuzzerIcon = () => (
-      <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-        <defs>
-          <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#fb923c" />
-            <stop offset="100%" stopColor="#f97316" />
-          </linearGradient>
-        </defs>
-        <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#orangeGrad)" stroke="#ea580c" strokeWidth="2" />
-        <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.2" />
-        <circle cx="50" cy="30" r="16" fill="#c2410c" />
-        <circle cx="50" cy="30" r="12" fill="#292524" opacity="0.3" />
-        <path d="M40 30 H60 M50 20 V40" stroke="#fb923c" strokeWidth="2" opacity="0.5" />
-        <path d="M72 20 Q80 30 72 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.9" />
-        <path d="M28 20 Q20 30 28 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.9" />
-        <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-        <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+      <svg viewBox="0 0 45 45" className="w-full h-full drop-shadow-md">
+        {/* Component Body: Orange square (Wider) */}
+        <rect x="2" y="5" width="41" height="35" rx="5" fill="#fb923c" stroke="#f97316" strokeWidth="2" />
+        {/* Central Icon: Speaker (Volume2 path simplified) */}
+        <g transform="translate(11, 11)" fill="#fff" stroke="#fff" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 5L3 8H1v6h2l3 3V5Z"/>
+            <path d="M8 8a4.99 4.99 0 0 1 0 8"/>
+        </g>
+        {/* Snaps (Simplified circles outside the main body for positioning context) */}
+        <circle cx="5" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
+        <circle cx="40" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
       </svg>
     );
 
     const LightIcon = () => (
-      <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
-        <defs>
-          <linearGradient id="yellowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#facc15" />
-            <stop offset="100%" stopColor="#eab308" />
-          </linearGradient>
-          <radialGradient id="bulbGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#fef08a" />
-            <stop offset="100%" stopColor="#fde047" />
-          </radialGradient>
-        </defs>
-        <rect x="5" y="5" width="90" height="50" rx="8" fill="url(#yellowGrad)" stroke="#ca8a04" strokeWidth="2" />
-        <path d="M10 10 H90 Q92 10 92 12 V20 Q50 30 8 20 V12 Q8 10 10 10" fill="white" opacity="0.3" />
-        <circle cx="50" cy="30" r="14" fill="url(#bulbGrad)" stroke="#eab308" strokeWidth="1" filter="drop-shadow(0 0 5px rgba(253, 224, 71, 0.6))" />
-        <circle cx="55" cy="25" r="4" fill="white" opacity="0.8" />
-        <circle cx="25" cy="30" r="3" fill="white" opacity="0.5" />
-        <circle cx="75" cy="30" r="3" fill="white" opacity="0.5" />
-        <circle cx="15" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
-        <circle cx="85" cy="30" r="4" fill="#cbd5e1" stroke="#94a3b8" />
+      <svg viewBox="0 0 45 45" className="w-full h-full drop-shadow-md">
+        {/* Component Body: Yellow/Orange horizontal stripe (Wider) */}
+        <rect x="2" y="15" width="41" height="15" rx="5" fill="#fcd34d" stroke="#eab308" strokeWidth="2" />
+        {/* Light Emitters (dots) */}
+        <circle cx="15" cy="22.5" r="3" fill="#fff" opacity="0.8"/>
+        <circle cx="30" cy="22.5" r="3" fill="#fff" opacity="0.8"/>
+        {/* Snaps (Simplified circles outside the main body for positioning context) */}
+        <circle cx="5" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
+        <circle cx="40" cy="22.5" r="3" fill="#e2e8f0" stroke="#4b5563" strokeWidth="1"/>
       </svg>
     );
 
@@ -242,8 +202,8 @@
         color: 'bg-red-500', logic: 'switch', width: 'fixed',
         desc: "This is your on/off switch! When you press the button, it closes the circuit and lets electricity flow."
       },
-      BUZZER: { 
-        id: 'buzzer', label: 'Sound', 
+      SOUND: { 
+        id: 'sound', label: 'Sound', 
         CustomIcon: BuzzerIcon, 
         color: 'bg-orange-500', logic: 'output', width: 'fixed',
         desc: "This piece makes noise when the circuit is complete. It might beep, buzz, or make a fun sound depending on your design."
@@ -255,7 +215,9 @@
         desc: "This piece lights up when your circuit is correct. It's great for making glowing eyes, warning lights, or signals."
       },
     };
-
+    
+    // --- NOTE: MISSIONS data is maintained as before (using 'SOUND'). ---
+    
     const MISSIONS = [
       {
         id: 1,
@@ -268,7 +230,6 @@
             challenge: "Connect a Battery and a Light in parallel (bridging the same columns).",
             hint: "Try placing the Battery on the top row and the Light further down, connecting to the same columns.",
             requiredComponents: { battery: 1, led: 1 },
-            // Solution: Simple parallel circuit (Col 1 to Col 2)
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
               { r1: 4, c1: 1, r2: 4, c2: 2, type: 'led' }
@@ -287,7 +248,6 @@
             challenge: "Use 2 lights on one power source to relight the city.",
             hint: "You can stack lights vertically! Connect them all to the same power columns.",
             requiredComponents: { battery: 1, led: 2 },
-            // Solution: Two LEDs in parallel (Col 1 to Col 2)
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
               { r1: 3, c1: 1, r2: 3, c2: 2, type: 'led' },
@@ -304,14 +264,13 @@
         stages: [
           {
             description: "A magic gust knocked out the spotlight and drumroll. Build a circuit that turns on a light and buzzer together.",
-            challenge: "Use 1 light + 1 buzzer to power the opening act.",
+            challenge: "Use 1 light + 1 sound output to power the opening act.",
             hint: "Just like the streetlights, but swap one light for a buzzer!",
-            requiredComponents: { battery: 1, buzzer: 1, led: 1 },
-            // Solution: LED and Buzzer in parallel (Col 1 to Col 2)
+            requiredComponents: { battery: 1, sound: 1, led: 1 }, // Changed buzzer to sound
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
-              { r1: 3, c1: 1, r2: 3, c2: 2, type: 'led' },
-              { r1: 5, c1: 1, r2: 5, c2: 2, type: 'buzzer' }
+              { r1: 3, c1: 1, r2: 3, c1: 2, type: 'led' },
+              { r1: 5, c1: 1, r2: 5, c2: 2, type: 'sound' } // Changed buzzer to sound
             ]
           }
         ]
@@ -323,15 +282,14 @@
         image: "🎮",
         stages: [
           {
-            description: "Pixel monsters! The buzzer is too far from the battery return. Use a long flexible wire!",
-            challenge: "Use 1 buzzer + 1 button + 1 Long Wire.",
+            description: "Pixel monsters! The sound output is too far from the battery return. Use a long flexible wire!",
+            challenge: "Use 1 sound output + 1 button + 1 Long Wire.",
             hint: "The blue Wire acts like a bridge. Use it to connect the end of the circuit back to the start.",
-            requiredComponents: { battery: 1, buzzer: 1, button: 1, connector: 1 },
-            // Solution: Series circuit using four columns and a wire jumper (Col 2 -> 3 -> 4 -> 1)
+            requiredComponents: { battery: 1, sound: 1, button: 1, connector: 1 }, // Changed buzzer to sound
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
               { r1: 3, c1: 2, r2: 3, c2: 3, type: 'button' },
-              { r1: 5, c1: 3, r2: 5, c2: 4, type: 'buzzer' },
+              { r1: 5, c1: 3, r2: 5, c2: 4, type: 'sound' }, // Changed buzzer to sound
               { r1: 0, c1: 4, r2: 0, c2: 1, type: 'connector' } 
             ]
           }
@@ -345,27 +303,25 @@
         stages: [
           {
             description: "The doorbell is broken! Visitors can't ring it.",
-            challenge: "Level 1: Build a simple doorbell using a Battery, Button, and Buzzer.",
-            hint: "Power -> Button -> Buzzer. Make sure to use a Wire to close the loop if needed!",
-            requiredComponents: { battery: 1, button: 1, buzzer: 1 },
-            // Solution: Series circuit (Col 2 -> 3 -> 4 -> 1)
+            challenge: "Level 1: Build a simple doorbell using a Battery, Button, and Sound Output.",
+            hint: "Power -> Button -> Sound Output. Make sure to use a Wire to close the loop if needed!",
+            requiredComponents: { battery: 1, button: 1, sound: 1 }, // Changed buzzer to sound
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
               { r1: 3, c1: 2, r2: 3, c2: 3, type: 'button' },
-              { r1: 5, c1: 3, r2: 5, c2: 4, type: 'buzzer' },
+              { r1: 5, c1: 3, r2: 5, c2: 4, type: 'sound' }, // Changed buzzer to sound
               { r1: 0, c1: 4, r2: 0, c2: 1, type: 'connector' } 
             ]
           },
           {
             description: "Great! Now fix the porch light too. It needs to turn on when the doorbell rings.",
-            challenge: "Level 2: Add a Light to your circuit so both the buzzer AND light work together.",
-            hint: "Add the light right next to the buzzer on the same columns.",
-            requiredComponents: { battery: 1, button: 1, buzzer: 1, led: 1 },
-            // Solution: Series circuit (Col 2 -> 3), Parallel outputs (Col 3 -> 4), Jumper (Col 4 -> 1)
+            challenge: "Level 2: Add a Light to your circuit so both the sound output AND light work together.",
+            hint: "Add the light right next to the sound output on the same columns.",
+            requiredComponents: { battery: 1, button: 1, sound: 1, led: 1 }, // Changed buzzer to sound
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
               { r1: 3, c1: 2, r2: 3, c2: 3, type: 'button' },
-              { r1: 5, c1: 3, r2: 5, c2: 4, type: 'buzzer' },
+              { r1: 5, c1: 3, r2: 5, c2: 4, type: 'sound' }, // Changed buzzer to sound
               { r1: 4, c1: 3, r2: 4, c2: 4, type: 'led' }, 
               { r1: 0, c1: 4, r2: 0, c2: 1, type: 'connector' }
             ]
@@ -380,13 +336,12 @@
         stages: [
           {
             description: "Let's get this party started! We need music.",
-            challenge: "Level 1: Connect a Battery to a Buzzer to start the beat.",
-            hint: "Just a simple loop: Battery and Buzzer connecting the same two columns.",
-            requiredComponents: { battery: 1, buzzer: 1 },
-            // Solution: Simple parallel circuit (Col 1 to Col 2)
+            challenge: "Level 1: Connect a Battery to a Sound Output to start the beat.",
+            hint: "Just a simple loop: Battery and Sound Output connecting the same two columns.",
+            requiredComponents: { battery: 1, sound: 1 }, // Changed buzzer to sound
             solutionComponents: [
               { r1: 1, c1: 1, r2: 1, c2: 2, type: 'battery' },
-              { r1: 4, c1: 1, r2: 4, c2: 2, type: 'buzzer' }
+              { r1: 4, c1: 1, r2: 4, c2: 2, type: 'sound' } // Changed buzzer to sound
             ]
           }
         ]
@@ -476,13 +431,55 @@
         default: return 'from-slate-200 to-slate-100 text-slate-800';
       }
     };
+    
+    /**
+     * Renders the list of required components for the current stage.
+     * @param {object} required - Required components for the mission.
+     * @param {Array} components - Currently placed components on the board.
+     */
+    const renderRequiredComponents = (required, currentComponents) => {
+        // Calculate current count of components on the board
+        const currentCounts = currentComponents.reduce((acc, c) => {
+            acc[c.type] = (acc[c.type] || 0) + 1;
+            return acc;
+        }, {});
+
+        const componentsArray = Object.entries(required).map(([type, count]) => {
+            const compDef = COMPONENT_TYPES[type.toUpperCase()];
+            if (!compDef) return null;
+            
+            const current = currentCounts[type] || 0;
+            const isMet = current >= count;
+            
+            return (
+                <div key={type} className={`flex items-center gap-2 p-1 rounded-full shadow-sm text-xs font-bold border 
+                    ${isMet ? 'bg-green-100 border-green-300 text-green-700' : 'bg-white/70 border-slate-200 text-slate-700'}`}>
+                    
+                    <span className="text-blue-600 px-2">
+                        {count}x 
+                    </span>
+                    <span className="capitalize text-[11px] pr-2 flex items-center gap-1">
+                        {compDef.label}
+                        {isMet && <CheckCircle size={14} className="text-green-500 fill-green-500/10" />}
+                    </span>
+                </div>
+            );
+        });
+
+        return (
+            <div className="mt-2">
+                <h4 className="font-extrabold text-sm text-blue-700 mb-2 uppercase tracking-wider">Required Parts</h4>
+                <div className="flex flex-wrap gap-2">
+                    {componentsArray}
+                </div>
+            </div>
+        );
+    };
 
     // --- Sparky Component ---
-    const Sparky = ({ mood = 'happy', message, mobileCollapsed, onHint, isWorkbench }) => {
-      if (mobileCollapsed || (isWorkbench && window.innerWidth < 768)) {
-        // Hide Sparky entirely on mobile workbench for space efficiency
-         return null; 
-      }
+    const Sparky = ({ mood = 'happy', message, mobileCollapsed, onHint, isWorkbench, isVisible }) => {
+      // Hide completely if not visible (handled by parent visibility class in the next block)
+      if (!isVisible) return null; 
 
       const isExcited = mood === 'excited';
       const isSpeaking = mood === 'speaking';
@@ -520,9 +517,9 @@
         }
       `;
 
-      // Dynamic positioning: Fixed on landing page.
-      // On workbench (isWorkbench=true): Fixed to the LEFT side,
-      // lifted higher (bottom-32 on desktop) to clear the control bar.
+      // Dynamic positioning: 
+      // On Mission Select/Landing: fixed position on the bottom/right/left.
+      // On workbench (isWorkbench=true): Fixed to the LEFT side, lifted higher (bottom-32 on desktop)
       const baseClasses = isWorkbench 
         ? "fixed hidden md:flex flex-col items-end left-2 bottom-32 z-50 pointer-events-none"
         : "fixed bottom-24 right-4 md:bottom-6 md:left-6 z-50 flex flex-col-reverse md:flex-row items-end pointer-events-none";
@@ -531,9 +528,12 @@
       const messageBoxClasses = isWorkbench
         ? "relative transition-all duration-300 md:order-1 ml-auto mr-4" // Message box on the LEFT of the robot
         : "relative md:mr-4 ml-auto md:ml-0 transition-all duration-300";
+      
+      // Mobile visibility class
+      const mobileVisibility = isWorkbench ? 'block' : 'hidden'; // Sparky is hidden on mobile workbench unless forced visible by the toggle button
 
       return (
-        <div className={baseClasses}>
+        <div className={baseClasses + ` ${mobileVisibility}`}>
           {/* Inject dynamic styles */}
           <style>{styles}</style>
           <div className={`relative ${messageBoxClasses}`}>
@@ -600,7 +600,7 @@
       );
     };
 
-    // --- Modals ---
+    // --- Modals (No change needed) ---
 
     const Modal = ({ title, children, onClose }) => (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
@@ -619,7 +619,7 @@
         </div>
     );
 
-    // --- Credit Modal (Simplified) ---
+    // --- Credit Modal (No change needed) ---
     const CreditsModal = ({ onClose }) => {
         return (
             <Modal title="Project Credits" onClose={onClose}>
@@ -699,7 +699,7 @@
         </Modal>
     );
 
-    // --- Sewing Simulator Component ---
+    // --- Sewing Simulator Component (No change needed) ---
     const SewingSimulator = ({ onClose }) => {
         const [sewingStep, setSewingStep] = useState(0);
         const [isSewing, setIsSewing] = useState(false);
@@ -888,6 +888,7 @@
                             {sewingStep > 0 && (
                                 <button onClick={handleReset} className="w-full px-4 py-3 bg-slate-200 text-slate-700 rounded-xl font-bold hover:bg-slate-300 transition-colors flex items-center justify-center gap-2 hover:scale-[1.01]">
                                     <RefreshCcw size={20} /> Reset Tutorial
+                                    
                                 </button>
                             )}
                         </div>
@@ -919,12 +920,14 @@
       const [isRunning, setIsRunning] = useState(false);
       const [isButtonPressed, setIsButtonPressed] = useState(false);
       const [success, setSuccess] = useState(false);
-      const [sparkyMsg, setSparkyMsg] = useState("Hi! I'm Sparky. Let's build on the Felt Board!");
+      const [sparkyMsg, setSparkyMsg] = useState("Hi! I'm Sparky. Lets build on the Felt Board!");
       const [manualTab, setManualTab] = useState('parts'); 
       const [isSolutionMode, setIsSolutionMode] = useState(false); 
       const [showCredits, setShowCredits] = useState(false); 
       const [showBrief, setShowBrief] = useState(false); 
       const [showSewing, setShowSewing] = useState(false); // NEW: Sewing State
+      // NEW: State for Sparky's visibility on mobile workbench
+      const [isSparkyVisible, setIsSparkyVisible] = useState(false); 
 
       // NOTE: FELT_BOARD_IMAGE_URL was missing in the original file, replacing it with a placeholder path.
       const FELT_BOARD_IMAGE_URL = "felt_board_texture.jpg"; 
@@ -942,6 +945,8 @@
         setIsRunning(false);
         setIsSolutionMode(false); 
         setShowMissionDetails(false);
+        // Show Sparky by default when entering the workbench
+        setIsSparkyVisible(true);
         const mission = MISSIONS.find(m => m.id === id);
         setSparkyMsg(mission.stages[0].description + (mission.stages[0].requiredComponents.button ? " Remember to PRESS the red button below to close the circuit and test!" : ""));
         triggerSound('snap');
@@ -954,7 +959,7 @@
             setSuccess(false);
             setIsRunning(false);
             setIsSolutionMode(false); 
-            setComponents(components.filter(c => c.type !== 'battery' && c.type !== 'connector' && c.type !== 'led' && c.type !== 'buzzer' && c.type !== 'button')); // Clear outputs only for multi-stage
+            setComponents(components.filter(c => c.type !== 'battery' && c.type !== 'connector' && c.type !== 'led' && c.type !== 'sound' && c.type !== 'button')); // Changed buzzer to sound
             const nextStage = mission.stages[activeStageIndex + 1];
             setSparkyMsg(nextStage.description + (nextStage.requiredComponents.button ? " Remember to PRESS the red button below to close the circuit and test!" : ""));
             triggerSound('snap');
@@ -1164,10 +1169,10 @@
           if (missionSuccess) {
               const activeComponentTypes = currentComponents.filter(c => activeComponentIds.has(c.id)).map(c => c.type);
               const activeLedCount = activeComponentTypes.filter(t => t === 'led').length;
-              const activeBuzzerCount = activeComponentTypes.filter(t => t === 'buzzer').length;
+              const activeSoundCount = activeComponentTypes.filter(t => t === 'sound').length; // Changed buzzer to sound
 
               if (stage.requiredComponents.led && activeLedCount < stage.requiredComponents.led) missionSuccess = false;
-              if (stage.requiredComponents.buzzer && activeBuzzerCount < stage.requiredComponents.buzzer) missionSuccess = false;
+              if (stage.requiredComponents.sound && activeSoundCount < stage.requiredComponents.sound) missionSuccess = false; // Changed buzzer to sound
           }
         }
         
@@ -1193,7 +1198,7 @@
               if (missionSuccess) {
                   setSparkyMsg("Circuit Complete! It works!");
                   triggerSound('success');
-                  if (comps.filter(c => c.type === 'buzzer' && activeComponentIds.has(c.id)).length > 0) {
+                  if (comps.filter(c => c.type === 'sound' && activeComponentIds.has(c.id)).length > 0) { // Changed buzzer to sound
                       triggerSound('buzz');
                   }
               } else {
@@ -1325,23 +1330,24 @@
                         </button>
                     </div>
                 </div>
-                <Sparky mood="happy" message="Ready to start your electric adventure?" mobileCollapsed={false} />
+                <Sparky mood="happy" message="Ready to start your electric adventure?" mobileCollapsed={false} isVisible={true} />
             </div>
           )}
 
           {screen === 'mission-select' && (
+              // --- MISSION SELECT SCREEN FIX: Enhanced Responsiveness ---
               <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-br from-stone-100 to-blue-50">
-                 <header className="flex items-center justify-between mb-8 max-w-6xl mx-auto">
-                    <h2 className="text-2xl md:text-4xl font-black flex items-center gap-3 tracking-tight text-blue-900 drop-shadow-sm">
+                 <header className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 max-w-6xl mx-auto">
+                    <h2 className="text-3xl md:text-4xl font-black flex items-center gap-3 tracking-tight text-blue-900 drop-shadow-sm mb-4 md:mb-0">
                       <div className="w-8 h-8 text-yellow-500"><BatteryIcon /></div> Circuit Stories Missions
                     </h2>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                         <button onClick={() => setScreen('manual')} className="font-bold flex items-center gap-2 transition-colors px-4 py-2 rounded-full shadow-md bg-white text-slate-500 hover:text-blue-600 hover:shadow-lg hover:scale-[1.02] ring-2 ring-transparent hover:ring-blue-200"><BookOpen size={18} /> Manual</button>
                         <button onClick={() => setScreen('landing')} className="font-bold flex items-center gap-2 transition-colors px-4 py-2 rounded-full shadow-md bg-white text-slate-500 hover:text-blue-600 hover:shadow-lg hover:scale-[1.02] ring-2 ring-transparent hover:ring-blue-200"><Home size={18} /> Home</button>
                     </div>
                   </header>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
                       {MISSIONS.map((mission) => (
                           <div key={mission.id} onClick={() => handleStartMission(mission.id)} className="cursor-pointer relative group rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-white hover:shadow-2xl hover:scale-[1.02] transition-all flex flex-col ring-4 ring-transparent group-hover:ring-blue-300/50">
                                 {/* Mission Card Visuals */}
@@ -1360,7 +1366,7 @@
                           </div>
                       ))}
                       
-                      <div className="md:col-span-2 lg:col-span-4 mt-8 mb-4 border-t-4 border-dashed border-slate-300 pt-8">
+                      <div className="col-span-full mt-8 mb-4 border-t-4 border-dashed border-slate-300 pt-8">
                             <h2 className="text-2xl font-black flex items-center gap-2 uppercase tracking-widest mb-6 text-slate-500">
                                 <Sparkles size={24} className="text-yellow-500 animate-pulse" /> Future Adventures
                             </h2>
@@ -1370,7 +1376,7 @@
                         <div className="cursor-not-allowed relative group rounded-xl overflow-hidden shadow-inner border-4 border-dashed aspect-[3/4] flex flex-col opacity-80 grayscale bg-slate-100 border-slate-300">
                             <div className="absolute top-4 right-4 z-20"><Lock size={24} className="text-slate-400" /></div>
                             <div className="flex-1 flex items-center justify-center relative z-10 flex-col p-6 text-center">
-                                <Cpu size={64} className="text-pink-600 mb-4" />
+                                <Cpu size={64} className="text-green-600 mb-4" /> 
                                 <h3 className="text-xl font-black mb-2 text-slate-800">Arduino Connect</h3>
                                 <p className="text-xs leading-relaxed text-slate-600">Upgrade your builds with code! Connect your circuit board to programmable logic and unleash new creativity.</p>
                             </div>
@@ -1384,14 +1390,14 @@
                                 <h3 className="text-xl font-black mb-2 text-slate-800">Wearable Mode</h3>
                                 <p className="text-xs leading-relaxed text-slate-600">Tutorial: Learn how to sew your felt board onto a T-shirt and make your circuits wearable.</p>
                             </div>
-                            <div className="bg-teal-600 p-2 text-center text-white text-xs font-bold uppercase tracking-widest group-hover:bg-teal-700 transition-colors">Start Tutorial</div>
+                            <div className="bg-teal-600 p-2 text-center text-white text-xs font-bold uppercase tracking-widest">Start Tutorial</div>
                         </div>
 
                         {/* Magazine Teaser - Coming Soon */}
                         <div className="cursor-not-allowed relative group rounded-xl overflow-hidden shadow-inner border-4 border-dashed aspect-[3/4] flex flex-col opacity-80 grayscale bg-slate-100 border-slate-300">
                             <div className="absolute top-4 right-4 z-20"><Lock size={24} className="text-slate-400" /></div>
                             <div className="flex-1 flex items-center justify-center relative z-10 flex-col p-6 text-center">
-                                <BookOpen size={64} className="text-teal-600 mb-4" />
+                                <FileText size={64} className="text-teal-600 mb-4" />
                                 <h3 className="text-xl font-black mb-2 text-slate-800">Circuit Adventures</h3>
                                 <p className="text-xs leading-relaxed text-slate-600">Coming Soon! Dive deeper into Sparky's world...</p>
                             </div>
@@ -1417,7 +1423,6 @@
                        <div className="flex-1 p-6 overflow-y-auto">
                            {manualTab === 'parts' && (
                                <div className="space-y-6">
-                                   <h3 className="text-2xl font-extrabold text-slate-800 border-b pb-3 mb-4">The Circuit Kit Components</h3>
                                    {Object.values(COMPONENT_TYPES).map(comp => (
                                        <div key={comp.id} className="flex items-center p-3 rounded-xl bg-white shadow-lg border border-slate-100">
                                            <div className="w-20 h-10 shrink-0">
@@ -1445,14 +1450,14 @@
 
                                    <h4 className="font-bold text-xl text-slate-700 mt-6">Component Sizing</h4>
                                    <ul className="list-disc list-inside text-sm ml-4 space-y-2">
-                                       <li>**Fixed Parts (Battery, Light, Button, Buzzer):** These pieces are rigid and can only span **two adjacent snaps** in the **same row** (size 1).</li>
+                                       <li>**Fixed Parts (Battery, Light, Button, Sound):** These pieces are rigid and can only span **two adjacent snaps** in the **same row** (size 1).</li>
                                        <li>**Flexible Wire (Connector):** This piece is versatile and can connect **any two snaps** on the board, bridging large gaps or connecting diagonally.</li>
                                    </ul>
                                    
                                    <h4 className="font-bold text-xl text-slate-700 mt-6">Types of Circuits</h4>
                                    <ul className="list-disc list-inside text-sm ml-4 space-y-2">
-                                       <li>**Simple Loop:** One battery powers one output (Light/Buzzer).</li>
-                                       <li>**Parallel:** Connecting multiple outputs (Lights/Buzzers) across the same two columns. This lets them all run at full power from the same source.</li>
+                                       <li>**Simple Loop:** One battery powers one output (Light/Sound).</li>
+                                       <li>**Parallel:** Connecting multiple outputs (Lights/Sound) across the same two columns. This lets them all run at full power from the same source.</li>
                                        <li>**Series:** (Advanced) Outputs are chained from column to column. This splits the power, often dimming the lights, but is useful for complex switches.</li>
                                    </ul>
                                </div>
@@ -1466,13 +1471,36 @@
           {screen === 'workbench' && currentStage && (
             <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden min-h-screen bg-gradient-to-br from-stone-100 to-slate-200">
                
-               <Sparky 
-                    mood={success ? 'excited' : (isRunning ? 'speaking' : 'happy')}
-                    message={sparkyMsg}
-                    mobileCollapsed={false}
-                    onHint={handleHint}
-                    isWorkbench={true} 
-                />
+               {/* Sparky visibility controlled by isSparkyVisible state on mobile, otherwise uses desktop behavior */}
+               <div className={`
+                    ${isSparkyVisible ? 'fixed bottom-12 left-0 w-full z-50 md:relative md:w-auto md:bottom-auto' : 'hidden'} 
+                    md:block 
+                    md:flex-col md:items-end 
+                    md:left-2 md:bottom-32 md:z-50 md:pointer-events-none 
+                    md:fixed 
+               `}>
+                    <Sparky 
+                        mood={success ? 'excited' : (isRunning ? 'speaking' : 'happy')}
+                        message={sparkyMsg}
+                        mobileCollapsed={false}
+                        onHint={handleHint}
+                        isWorkbench={true} 
+                        isVisible={isSparkyVisible || window.innerWidth >= 768} 
+                    />
+               </div>
+
+                {/* Mobile Sparky Toggle Button (Visible only on mobile workbench) */}
+                {screen === 'workbench' && (
+                    <button 
+                        onClick={() => setIsSparkyVisible(prev => !prev)}
+                        className="fixed bottom-4 left-4 md:hidden z-50 p-3 rounded-full shadow-lg font-bold text-sm transition-all flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 ring-4 ring-blue-300/50"
+                        title={isSparkyVisible ? "Hide Sparky" : "Show Sparky"}
+                    >
+                        {isSparkyVisible ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                        <span className="hidden xs:inline">{isSparkyVisible ? 'Hide Robot' : 'Show Robot'}</span>
+                    </button>
+                )}
+
 
                 {/* Mission Info Column (Left/Top Mobile) */}
                 <div className={`p-4 md:p-6 md:w-80 md:shrink-0 bg-white shadow-lg md:shadow-2xl md:overflow-y-auto transition-all relative ring-4 ring-blue-500/10 ${showMissionDetails ? 'h-full' : 'h-auto max-h-[30vh] md:max-h-full'}`}>
@@ -1503,8 +1531,11 @@
                                 <p className="text-sm text-slate-700 leading-snug font-bold">{currentStage.description}</p>
                             </div>
 
+                            {/* --- New Required Parts Display --- */}
+                            {currentStage.requiredComponents && renderRequiredComponents(currentStage.requiredComponents, components)}
+
                             <div className="mt-4 pt-4 border-t border-slate-200">
-                                <h4 className="font-extrabold text-sm text-blue-700 mb-2 uppercase tracking-wider">Challenge Components</h4>
+                                <h4 className="font-extrabold text-sm text-blue-700 mb-2 uppercase tracking-wider">Challenge Goal</h4>
                                 <p className="text-xs text-slate-600 font-medium">{currentStage.challenge}</p>
                             </div>
                         </div>
@@ -1555,33 +1586,40 @@
                                     {/* ---------------------------------------------------- */}
                                     {/* Visual Conduction Lines (Z-index 0 - underneath everything) */}
                                     {/* ---------------------------------------------------- */}
-                                    {Array.from({ length: GRID_COLS }).map((_, c) => (
-                                        <div
-                                            key={`conn-line-${c}`}
-                                            className="absolute z-0"
-                                            style={{
-                                                left: c * STRIDE + CELL_SIZE / 2 - 2.5, // Center the line on the column center
-                                                top: 0,
-                                                width: 5, 
-                                                height: '100%',
-                                            }}
-                                        >
-                                            <svg width="5" height="100%" viewBox={`0 0 5 ${GRID_ROWS * STRIDE + GAP_SIZE}`} preserveAspectRatio="none" className="w-full h-full">
-                                                <line 
-                                                    x1="2.5" 
-                                                    y1="0" 
-                                                    x2="2.5" 
-                                                    y2={GRID_ROWS * STRIDE + GAP_SIZE} 
-                                                    stroke="#3b82f6" // Use a conductive blue color
-                                                    strokeWidth="2" 
-                                                    strokeDasharray="4 8" // Dashed line to show it's an underlying connection
-                                                    opacity="0.3" // Make it subtle
-                                                    className={isRunning ? 'animate-pulse' : ''}
-                                                    style={isRunning ? { stroke: '#38BDF8', filter: 'drop-shadow(0 0 4px #38BDF8)' } : {}}
-                                                />
-                                            </svg>
-                                        </div>
-                                    ))}
+                                    {Array.from({ length: GRID_COLS }).map((_, c) => {
+                                        const SNAP_GLOBAL_OFFSET_X = 17.5; // Adjusted to 17.5
+                                        // Line Calculation: Column Start + Snap Size + Half Gap Size - Half Line Width + Snap Global Offset
+                                        const CONDUCTIVE_LINE_LEFT = c * STRIDE + CELL_SIZE + (GAP_SIZE / 2) - 2.5 + SNAP_GLOBAL_OFFSET_X;
+
+                                        return (
+                                            <div
+                                                key={`conn-line-${c}`}
+                                                className="absolute z-0"
+                                                style={{
+                                                    // Position the line halfway between snap columns
+                                                    left: CONDUCTIVE_LINE_LEFT, 
+                                                    top: 0,
+                                                    width: 5, 
+                                                    height: '100%',
+                                                }}
+                                            >
+                                                <svg width="5" height="100%" viewBox={`0 0 5 ${GRID_ROWS * STRIDE + GAP_SIZE}`} preserveAspectRatio="none" className="w-full h-full">
+                                                    <line 
+                                                        x1="2.5" 
+                                                        y1="0" 
+                                                        x2="2.5" 
+                                                        y2={GRID_ROWS * STRIDE + GAP_SIZE} 
+                                                        stroke="#3b82f6" // Use a conductive blue color
+                                                        strokeWidth="2" 
+                                                        strokeDasharray="4 8" // Dashed line to show it's an underlying connection
+                                                        opacity="0.3" // Make it subtle
+                                                        className={isRunning ? 'animate-pulse' : ''}
+                                                        style={isRunning ? { stroke: '#38BDF8', filter: 'drop-shadow(0 0 4px #38BDF8)' } : {}}
+                                                    />
+                                                </svg>
+                                            </div>
+                                        );
+                                    })}
 
 
                                     {/* Snap Grid (Smaller Size - Rendered ABOVE the background image) */}
@@ -1592,6 +1630,8 @@
                                             
                                             // Snaps are the connection points, adjusted to match the coordinates implied by the background image
                                             // z-index 10 for snaps
+                                            const SNAP_GLOBAL_OFFSET_X = 17.5; // Updated to 17.5
+
                                             return (
                                                 <div
                                                     key={`${r}-${c}`}
@@ -1599,19 +1639,24 @@
                                                         ${isDragStart ? 'bg-red-500 shadow-xl' : 
                                                         'bg-blue-300/40 hover:bg-blue-400/60'}`} // Enhanced color/effect for snap points
                                                     style={{
-                                                        left: c * STRIDE + GAP_SIZE / 2,
+                                                        // Apply +17.5px shift to the snap position
+                                                        left: c * STRIDE + GAP_SIZE / 2 + SNAP_GLOBAL_OFFSET_X, 
                                                         top: r * STRIDE + GAP_SIZE / 2,
                                                         width: CELL_SIZE, 
                                                         height: CELL_SIZE,
-                                                        // Ensure the snap points look like fasteners
+                                                        // Make it look like a ring/hole:
+                                                        backgroundColor: isDragStart ? 'red' : '#e2e8f0', // Outer ring color
                                                         border: '2px solid #5a5a5a',
                                                         boxShadow: 'inset 0 0 5px rgba(0,0,0,0.3)',
                                                         opacity: 0.9,
-                                                        transform: isDragStart ? 'scale(1.25)' : isTargetSnap ? 'scale(1.1)' : 'scale(1)',
-                                                        filter: isTargetSnap ? 'drop-shadow(0 0 5px #60a5fa)' : 'none',
+                                                        // Inner white circle to simulate hole
+                                                        clipPath: 'circle(50% at 50% 50%)',
                                                     }}
                                                     onClick={() => handleSnapClick(r, c)}
-                                                />
+                                                >
+                                                   {/* Inner hole simulation */}
+                                                   <div className="absolute inset-0 rounded-full bg-white" style={{ margin: '3px', border: '1px solid #ccc' }} />
+                                                </div>
                                             );
                                         })
                                     )}
@@ -1619,12 +1664,17 @@
                                     {/* Components (Rendered ABOVE Snaps, Z-Index 20) */}
                                     {components.map(comp => {
                                         const tool = COMPONENT_TYPES[comp.type.toUpperCase()];
-                                        const x1 = comp.c1 * STRIDE + CELL_SIZE / 2;
+                                        
+                                        // Recalculate snap centers based on the new SNAP_GLOBAL_OFFSET_X
+                                        const SNAP_GLOBAL_OFFSET_X = 17.5; 
+                                        const x1 = comp.c1 * STRIDE + CELL_SIZE / 2 + SNAP_GLOBAL_OFFSET_X;
                                         const y1 = comp.r1 * STRIDE + CELL_SIZE / 2;
-                                        const x2 = comp.c2 * STRIDE + CELL_SIZE / 2;
-                                        const y2 = comp.r2 * STRIDE + CELL_SIZE / 2;
+                                        
+                                        const componentWidth = STRIDE; 
                                         
                                         // Calculate center, angle, and distance for flexible wire
+                                        const x2 = comp.c2 * STRIDE + CELL_SIZE / 2 + SNAP_GLOBAL_OFFSET_X;
+                                        const y2 = comp.r2 * STRIDE + CELL_SIZE / 2;
                                         const dx = x2 - x1;
                                         const dy = y2 - y1;
                                         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1635,25 +1685,34 @@
                                         const isActive = comp.active && isRunning;
 
                                         if (tool.width === 'fixed') {
-                                            // Fixed Parts (Horizontal only)
+                                            // Fixed Parts (Horizontal only, spanning 1 STRIDE unit)
+                                            
+                                            // Start X: Center point of first snap (x1) minus half the component width (STRIDE / 2 = 22.5)
+                                            // This correctly centers the component over the two snapped columns, using the newly adjusted snap centers.
+                                            const startX = x1 - STRIDE / 2;
+
+                                            // Start Y: Center point of the row (y1) minus half the component height (STRIDE / 2 = 22.5), plus a visual offset (12.5px).
+                                            const startY = (y1 - STRIDE / 2) + 12.5;
+
                                             return (
                                                 <div
                                                     key={comp.id}
-                                                    className={`absolute cursor-pointer transition-all duration-300 z-20 ${isActive ? (comp.type === 'led' ? 'animate-pulse' : comp.type === 'buzzer' ? 'animate-vibrate' : '') : ''}`}
+                                                    className={`absolute cursor-pointer transition-all duration-300 z-20 ${isActive ? (comp.type === 'led' ? 'animate-pulse' : comp.type === 'sound' ? 'animate-vibrate' : '') : ''}`}
                                                     style={{
-                                                        left: Math.min(x1, x2),
-                                                        top: y1 - 30, // Center vertically on a 60px height (component height)
-                                                        width: STRIDE,
-                                                        height: 60,
+                                                        left: startX, 
+                                                        top: startY, 
+                                                        width: componentWidth, 
+                                                        height: STRIDE,
                                                     }}
                                                     onClick={() => handleRemoveComponent(comp.id)}
                                                 >
-                                                    <div className={`relative ${isActive ? (comp.type === 'led' ? 'opacity-100 drop-shadow-lg' : comp.type === 'buzzer' ? 'opacity-100' : 'opacity-100') : 'opacity-80'} hover:scale-[1.05] transition-transform`}>
+                                                    <div className={`relative w-full h-full ${isActive ? (comp.type === 'led' ? 'opacity-100 drop-shadow-lg' : comp.type === 'sound' ? 'opacity-100' : 'opacity-100') : 'opacity-80'} hover:scale-[1.05] transition-transform`}>
+                                                        {/* Icon fills the container (45x45 viewBox) */}
                                                         <tool.CustomIcon />
                                                         {/* Active Glow for Fixed Parts */}
                                                         {isActive && (
                                                             <div className={`absolute inset-0 rounded-lg opacity-50 mix-blend-lighten pointer-events-none transition-opacity duration-100 
-                                                                ${comp.type === 'battery' ? 'bg-green-300' : comp.type === 'led' ? 'bg-yellow-300 animate-blink ring-4 ring-yellow-400/50' : comp.type === 'buzzer' ? 'bg-orange-300 animate-pulse ring-4 ring-orange-400/50' : comp.type === 'button' ? 'bg-red-300' : ''}`}
+                                                                ${comp.type === 'battery' ? 'bg-green-300' : comp.type === 'led' ? 'bg-yellow-300 animate-blink ring-4 ring-yellow-400/50' : comp.type === 'sound' ? 'bg-orange-300 animate-pulse ring-4 ring-orange-400/50' : comp.type === 'button' ? 'bg-red-300' : ''}`}
                                                             />
                                                         )}
                                                     </div>
@@ -1676,7 +1735,7 @@
                                                     }}
                                                     onClick={() => handleRemoveComponent(comp.id)}
                                                 >
-                                                    <svg width={wireWidth} height="30" viewBox={`0 0 ${wireWidth} 30`} className="w-full h-full">
+                                                    <svg width={wireWidth} height="30" viewBox={`0 0 ${wireWidth} 30}`} className="w-full h-full">
                                                         <defs>
                                                             <linearGradient id={`wireGrad-${comp.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
                                                                 <stop offset="0%" stopColor={isActive ? "#38BDF8" : "#80aaff"} />
@@ -1737,7 +1796,7 @@
                                         className={`p-2 rounded-2xl shadow-lg border-4 transition-all w-24 h-24 shrink-0 flex flex-col items-center justify-center ${isSelected ? 'border-blue-500 bg-white/90 scale-105 shadow-xl ring-4 ring-blue-300' : 'border-slate-200 bg-white hover:border-blue-300 hover:scale-[1.02] ring-2 ring-transparent'}`}
                                         title={`Add ${comp.label}`}
                                     >
-                                        <div className="w-12 h-8">
+                                        <div className="w-12 h-12">
                                             <comp.CustomIcon />
                                         </div>
                                         <span className="text-xs font-bold mt-1 text-slate-700">{comp.label}</span>
