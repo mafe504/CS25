@@ -121,6 +121,65 @@
                 );
             };
 
+            // Animated circuit-line background with right-angle traces and pulsing nodes
+            const CircuitBackground = ({ variant = 'subtle' }) => {
+                const W = 1000, H = 1000;
+                const count = (typeof window !== 'undefined' && window.innerWidth < 640) ? 9 : 16;
+                const baseOpacity = variant === 'full' ? 0.55 : 0.25;
+                const colors = ['#22d3ee', '#60a5fa', '#93c5fd'];
+                const dash = 14, gap = 10;
+                return (
+                    <div className="absolute inset-0 pointer-events-none" style={{ opacity: 1 }}>
+                        <style>{`
+                            @keyframes dashFlow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -300; } }
+                            @keyframes nodePulse { 0%,100% { opacity: .55; r: 2.5; } 50% { opacity: 1; r: 4.5; } }
+                            .circuit-glow { filter: drop-shadow(0 0 8px rgba(147,197,253,.6)); }
+                        `}</style>
+                        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" preserveAspectRatio="none">
+                            {/* Soft radial wash */}
+                            <defs>
+                                <radialGradient id="circuitWash" cx="50%" cy="50%" r="65%">
+                                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity={variant === 'full' ? 0.10 : 0.05} />
+                                    <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
+                                </radialGradient>
+                            </defs>
+                            <rect x="0" y="0" width={W} height={H} fill="url(#circuitWash)" />
+
+                            {Array.from({ length: count }).map((_, i) => {
+                                // Build a simple right-angle trace: M 0,y H x1 V y2 H W
+                                const y = ((i * 63) % (H - 100)) + 50;
+                                const x1 = 150 + (i % 5) * 150;
+                                const y2 = Math.max(50, Math.min(H - 50, y + (i % 2 === 0 ? 80 + (i % 4) * 20 : -80 - (i % 4) * 20)));
+                                const path = `M 0 ${y} H ${x1} V ${y2} H ${W}`;
+                                const color = colors[i % colors.length];
+                                const width = variant === 'full' ? 2.2 : 1.6;
+                                const delay = -((i % 10) * 0.6);
+                                const duration = 10 + (i % 6) * 2;
+                                return (
+                                    <g key={i} className="circuit-glow">
+                                        <path d={path}
+                                            fill="none"
+                                            stroke={color}
+                                            strokeWidth={width}
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeOpacity={baseOpacity}
+                                            style={{
+                                                strokeDasharray: `${dash} ${gap}`,
+                                                animation: `dashFlow ${duration}s linear ${delay}s infinite`,
+                                            }}
+                                        />
+                                        {/* Junction node */}
+                                        <circle cx={x1} cy={y2} r="3.5" fill={color} opacity={Math.min(1, baseOpacity + 0.25)}
+                                            style={{ animation: `nodePulse ${4 + (i % 5)}s ease-in-out ${delay}s infinite` }} />
+                                    </g>
+                                );
+                            })}
+                        </svg>
+                    </div>
+                );
+            };
+
             // --- Realistic Custom Icons (SVG Components) ---
             const BatteryIcon = () => (
                 <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-md">
@@ -1237,7 +1296,7 @@
       {showSewing && <SewingSimulator onClose={() => setShowSewing(false)} />} 
 
       {screen === 'landing' && (
-        <div className="flex-1 flex flex-col items-center justify-center p-4 relative bg-gradient-to-br from-[#1b103e] to-[#4c1e63] overflow-hidden">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 relative bg-gradient-to-br from-[#0b1020] to-[#262b55] overflow-hidden">
           <style>
               {`
                   @keyframes icon-float {
@@ -1257,36 +1316,8 @@
                   }
               `}
           </style>
-           {/* Magical Floating Icons Background */}
-           <div className="absolute inset-0 pointer-events-none opacity-80">
-              {Array.from({ length: BG_ICON_COUNT }).map((_, i) => {
-                  const Icon = BACKGROUND_ICONS[i % BACKGROUND_ICONS.length];
-                  const size = 30 + Math.random() * 40;
-                  const left = Math.random() * 100;
-                  const top = Math.random() * 100;
-                  const delay = Math.random() * -10;
-                  const duration = 15 + Math.random() * 10;
-                  const color = ["#6366f1", "#06b6d4", "#fcd34d"][i % 3];
-
-                  return (
-                      <Icon 
-                          key={i}
-                          className="floating-icon"
-                          size={size}
-                          style={{
-                              left: `${left}vw`,
-                              top: `${top}vh`,
-                              animationDelay: `${delay}s`,
-                              animationDuration: `${duration}s`,
-                              color: color,
-                              zIndex: 0,
-                          }}
-                      />
-                  );
-              })}
-           </div>
-            {/* Extra magic layer */}
-            <MagicBackground variant="full" />
+           {/* Circuit-line animated background */}
+           <CircuitBackground variant="full" />
            
             <div className="z-10 text-center max-w-4xl px-4 flex flex-col items-center pt-24 pb-12">
                 
@@ -1321,7 +1352,7 @@
 
       {screen === 'mission-select' && (
                     <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-gradient-to-br from-stone-100 to-blue-50 relative">
-                        <MagicBackground variant="subtle" />
+                        <CircuitBackground variant="subtle" />
              <header className="flex items-center justify-between mb-8 max-w-6xl mx-auto">
                 <h2 className="text-2xl md:text-4xl font-black flex items-center gap-3 tracking-tight text-blue-900 drop-shadow-sm">
                   <div className="w-8 h-8 text-yellow-500"><BatteryIcon /></div> Circuit Stories Missions
@@ -1456,7 +1487,7 @@
 
       {screen === 'workbench' && currentStage && (
           <div className="flex-1 flex flex-col md:flex-row relative overflow-hidden min-h-screen bg-gradient-to-br from-stone-100 to-slate-200">
-              <MagicBackground variant="subtle" />
+              <CircuitBackground variant="subtle" />
            
            <Sparky 
                 mood={success ? 'excited' : (isRunning ? 'speaking' : 'happy')}
