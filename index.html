@@ -135,7 +135,7 @@
 
     // Manual Icons
     const PartsIcon = createIcon("M18 12h-5v5h5v-5Z M21 12h-1 M21 15h-1 M21 9V7a2 2 0 0 0-2-2h-2 M18 5V4 M15 5V4 M12 5v14 M9 5V4 M6 5V4 M5 5H3a2 2 0 0 0-2 2v2 M1 12h1 M1 15h1 M3 19h2a2 2 0 0 0 2-2v-2 M9 19v1 M12 19v1 M15 19v1 M19 19h2a2 2 0 0 0 2-2v-2", 24, "none", "currentColor"); // Chip
-    const WrenchIcon = createIcon("M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z", 24, "none", "currentColor"); 
+    const AssemblyIcon = createIcon("M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z", 24, "none", "currentColor"); 
     
     const Lock = createIcon("M11 15v-1a3 3 0 0 0-6 0v1h2m3 0v-2c0-1.1.9-2 2-2s2 .9 2 2v2m-2-6h.01M21 7v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z", 24, "none", "currentColor");
     const Sparkles = createIcon("M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 18.25l-6.18 3.84L7 14.14l-5-4.87 6.91-1.01L12 2Z M20 4L18 6 16 4 18 2 20 4Z M4 20L6 18 8 20 6 22 4 20Z", 24, "none", "currentColor");
@@ -160,7 +160,7 @@
     const CELL_SIZE = 20; 
     const GAP_SIZE = 25;  
     const STRIDE = CELL_SIZE + GAP_SIZE; // 45px pitch
-    const SNAP_GLOBAL_OFFSET_X = 15.5; 
+    const SNAP_GLOBAL_OFFSET_X = 17.5; 
 
     // --- SVG Assets ---
 
@@ -196,9 +196,9 @@
                 <rect width="100%" height="100%" fill="url(#circuit-pattern)" />
                 
                 {/* Animated Lines */}
-                <path d="M0 150 H 300 L 400 250 H 800 L 900 150 H 1500" stroke="#0ea5e9" strokeWidth="2" fill="none" strokeDasharray="20 20" className="animate-circuit-flow" />
-                <path d="M-100 600 H 200 L 300 500 H 600 L 700 600 H 1200" stroke="#3b82f6" strokeWidth="2" fill="none" strokeDasharray="15 15" className="animate-circuit-flow" style={{animationDuration: '5s', opacity: 0.7}} />
-                <path d="M1000 100 L 800 300 H 500 L 300 100" stroke="#60a5fa" strokeWidth="1.5" fill="none" strokeDasharray="10 10" className="animate-circuit-flow" style={{animationDuration: '7s', opacity: 0.5}} />
+                <path d="M0 150 H 300 L 400 250 H 800 L 900 150 H 1500" stroke="#0ea5e9" strokeWidth="2" fill="none" strokeDasharray="20 20" className="animate-dash-draw" style={{animationDuration: '20s'}} />
+                <path d="M-100 600 H 200 L 300 500 H 600 L 700 600 H 1200" stroke="#3b82f6" strokeWidth="2" fill="none" strokeDasharray="15 15" className="animate-dash-draw" style={{animationDuration: '15s', opacity: 0.7}} />
+                <path d="M1000 100 L 800 300 H 500 L 300 100" stroke="#60a5fa" strokeWidth="1.5" fill="none" strokeDasharray="10 10" className="animate-dash-draw" style={{animationDuration: '25s', opacity: 0.5}} />
             </svg>
         </div>
     );
@@ -603,7 +603,7 @@
                                 <p className="font-bold text-sm text-white text-center leading-tight">Julie J Heck</p>
                             </div>
                         </div>
-                        <p className="font-serif text-2xl text-[#A51C30] font-bold tracking-wide drop-shadow-md mt-6 border-t border-slate-600/30 pt-6">Harvard Graduate School of Education</p>
+                        <p className="font-serif text-2xl text-[#A51C30] font-black tracking-wide drop-shadow-md mt-6 border-t border-slate-600/30 pt-6">Harvard Graduate School of Education</p>
                         <div className="mt-6">
                              <a href="https://mafe504.github.io/CS25/oldversion.html" target="_blank" className="text-xs text-blue-400 hover:text-blue-300 hover:underline flex items-center justify-center gap-1 transition-colors">
                                 View Version 1 <ExternalLink size={12} />
@@ -758,8 +758,7 @@
       const [showBrief, setShowBrief] = useState(false); 
       const [showSewing, setShowSewing] = useState(false); 
       const [isSparkyVisible, setIsSparkyVisible] = useState(false); 
-      
-      // Removed separate success modal state to keep UI fluid
+      const [showSuccessModal, setShowSuccessModal] = useState(false); 
 
       const triggerSound = (type) => { if (audioEnabled) playSound(type); };
 
@@ -774,6 +773,7 @@
         setIsSolutionMode(false); 
         setShowMissionDetails(false);
         setIsSparkyVisible(true);
+        setShowSuccessModal(false);
         const mission = MISSIONS.find(m => m.id === id);
         setSparkyMsg(mission.stages[0].description);
         triggerSound('snap');
@@ -785,6 +785,7 @@
             setActiveStageIndex(prev => prev + 1);
             setSuccess(false);
             setIsRunning(false);
+            setShowSuccessModal(false);
             setIsSolutionMode(false); 
             setComponents(components.filter(c => ['battery','led','sound','button'].indexOf(c.type) === -1)); 
             const nextStage = mission.stages[activeStageIndex + 1];
@@ -792,8 +793,22 @@
             triggerSound('snap');
         } else {
              setScreen('mission-select');
+             setShowSuccessModal(false);
         }
       };
+      
+      const handleQuitMission = () => {
+           setScreen('mission-select');
+           setShowSuccessModal(false);
+      };
+      
+      const handleRetryLevel = () => {
+          setShowSuccessModal(false);
+          setIsRunning(false);
+          setIsButtonPressed(false);
+          setComponents([]); 
+      };
+
 
       const handleHint = () => {
         const mission = MISSIONS.find(m => m.id === activeMissionId);
